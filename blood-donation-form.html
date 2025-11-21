@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doação de Sangue</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header .icon {
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    .header h1 {
+      color: #c92a2a;
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .required::after {
+      content: " *";
+      color: #c92a2a;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #c92a2a;
+      box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.1);
+    }
+
+    input:hover, select:hover, textarea:hover {
+      border-color: #ff6b6b;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    select {
+      cursor: pointer;
+      background: white;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(201, 42, 42, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #999;
+      font-size: 12px;
+    }
+
+    .blood-types {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .blood-type-option {
+      position: relative;
+    }
+
+    .blood-type-option input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .blood-type-label {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .blood-type-option input:checked + .blood-type-label {
+      background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+      color: white;
+      border-color: #c92a2a;
+    }
+
+    .blood-type-label:hover {
+      border-color: #ff6b6b;
+    }
+
+    .success-message {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .success-message .check {
+      font-size: 60px;
+      margin-bottom: 15px;
+    }
+
+    .success-message h2 {
+      color: #2ecc71;
+      margin-bottom: 10px;
+    }
+
+    .success-message p {
+      color: #666;
+    }
+
+    .error-message {
+      background: #fee;
+      color: #c92a2a;
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="icon">🩸</div>
+      <h1>Doação de Sangue</h1>
+      <p>Preencha o formulário para se cadastrar</p>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+
+    <form id="bloodDonationForm">
+      <div class="form-group">
+        <label for="nome" class="required">Nome Completo</label>
+        <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="required">E-mail</label>
+        <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="telefone" class="required">Número de Telefone</label>
+        <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Tipo Sanguíneo</label>
+        <div class="blood-types">
+          <div class="blood-type-option">
+            <input type="radio" id="apos" name="tipoSanguineo" value="A+" required>
+            <label for="apos" class="blood-type-label">A+</label>
+          </div>
+          <div class="blood-type-option">
+            <input type="radio" id="aneg" name="tipoSanguineo" value="A-">
+            <label for="aneg" class="blood-type-label">A-</label>
+          </div>
+          <div class="blood-type-option">
+            <input type="radio" id="bpos" name="tipoSanguineo" value="B+">
+            <label for="bpos" class="blood-type-label">B+</label>
+          </div>
+          <div class="blood-type-option">
+            <input type="radio" id="bneg" name="tipoSanguineo" value="B-">
+            <label for="bneg" class="blood-type-label">B-</label>
+          </div>
+          <div class="blood-type-option">
+            <input type="radio" id="abpos" name="tipoSanguineo" value="AB+">
+            <label for="abpos" class="blood-type-label">AB+</label>
+          </div>
+          <div class="blood-type-option">
+            <input type="radio" id="abneg" name="tipoSanguineo" value="AB-">
+            <label for="abneg" class="blood-type-label">AB-</label>
+          </div>
+          <div class="blood-type-option">
+            <input type="radio" id="opos" name="tipoSanguineo" value="O+">
+            <label for="opos" class="blood-type-label">O+</label>
+          </div>
+          <div class="blood-type-option">
+            <input type="radio" id="oneg" name="tipoSanguineo" value="O-">
+            <label for="oneg" class="blood-type-label">O-</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="mensagem">Mensagem</label>
+        <textarea id="mensagem" name="mensagem" placeholder="Deixe uma mensagem ou observação..."></textarea>
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">Enviar Cadastro</button>
+    </form>
+
+    <div class="success-message" id="successMessage">
+      <div class="check">✅</div>
+      <h2>Cadastro Enviado!</h2>
+      <p>Obrigado por se cadastrar. Entraremos em contato em breve.</p>
+    </div>
+
+    <div class="footer">
+      <p>Doe sangue, salve vidas ❤️</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCqkJoORaSfEkM6gSSqU7XI5xLmRS5n2KM",
+      authDomain: "questionario-6769f.firebaseapp.com",
+      projectId: "questionario-6769f",
+      storageBucket: "questionario-6769f.firebasestorage.app",
+      messagingSenderId: "884301619298",
+      appId: "1:884301619298:web:5d329e9eff4dfecf4bf13b",
+      measurementId: "G-J1T8TZBSE8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('bloodDonationForm');
+    const successMessage = document.getElementById('successMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    const telefoneInput = document.getElementById('telefone');
+
+    telefoneInput.addEventListener('input', function(e) {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length <= 11) {
+        v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+        v = v.replace(/(\d{5})(\d)/, '$1-$2');
+      }
+      e.target.value = v;
+    });
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="loading"></span>Enviando...';
+      errorMessage.style.display = 'none';
+
+      const formData = {
+        nome: document.getElementById('nome').value,
+        email: document.getElementById('email').value,
+        telefone: document.getElementById('telefone').value,
+        tipoSanguineo: document.querySelector('input[name="tipoSanguineo"]:checked').value,
+        mensagem: document.getElementById('mensagem').value,
+        dataEnvio: serverTimestamp()
+      };
+
+      try {
+        await addDoc(collection(db, "doacoes"), formData);
+        form.style.display = 'none';
+        successMessage.style.display = 'block';
+      } catch (error) {
+        console.error("Erro ao enviar:", error);
+        errorMessage.textContent = "Erro ao enviar cadastro. Tente novamente.";
+        errorMessage.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Enviar Cadastro';
+      }
+    });
+  </script>
+</body>
+</html>
